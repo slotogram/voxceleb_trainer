@@ -141,6 +141,7 @@ def main_worker(gpu, ngpus_per_node, args):
     if args.gpu == 0:
         ## Write args to scorefile
         scorefile   = open(args.result_save_path+"/scores.txt", "a+")
+        scorefile2 = open(args.result_save_path+"/scores_eer.txt", "a+")
 
     ## Initialise trainer and data loader
     train_dataset = train_dataset_loader(**vars(args))
@@ -191,7 +192,7 @@ def main_worker(gpu, ngpus_per_node, args):
             fnrs, fprs, thresholds = ComputeErrorRates(sc, lab)
             mindcf, threshold = ComputeMinDcf(fnrs, fprs, thresholds, args.dcf_p_target, args.dcf_c_miss, args.dcf_c_fa)
 
-            print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "VEER {:2.4f}".format(result[1]), "MinDCF {:2.5f}".format(mindcf))
+            print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "EER {:2.4f}".format(result[1]), "MinDCF {:2.5f}".format(mindcf))
 
         return
         
@@ -238,8 +239,8 @@ def main_worker(gpu, ngpus_per_node, args):
         loss, traineer = trainer.train_network(train_loader, verbose=(args.gpu == 0))
 
         if args.gpu == 0:
-            print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, TEER/TAcc {:2.2f}, TLOSS {:f}, LR {:f}".format(it, traineer, loss, max(clr)))
-            scorefile.write("Epoch {:d}, TEER/TAcc {:2.2f}, TLOSS {:f}, LR {:f} \n".format(it, traineer, loss, max(clr)))
+            print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, Acc {:2.2f}, LOSS {:f}, LR {:f}".format(it, traineer, loss, max(clr)))
+            scorefile.write("{:d} {:2.2f} {:f} {:f}\n".format(it, traineer, loss, max(clr)))
 
         if it % args.test_interval == 0:
 
@@ -254,18 +255,21 @@ def main_worker(gpu, ngpus_per_node, args):
 
                 eers.append(result[1])
 
-                print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, VEER {:2.4f}, MinDCF {:2.5f}".format(it, result[1], mindcf))
-                scorefile.write("Epoch {:d}, VEER {:2.4f}, MinDCF {:2.5f}\n".format(it, result[1], mindcf))
+                print('\n')
+                print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, EER {:2.4f}, MinDCF {:2.5f}".format(it, result[1], mindcf))
+                #scorefile.write("Epoch {:d}, VEER {:2.4f}, MinDCF {:2.5f}\n".format(it, result[1], mindcf))
 
                 trainer.saveParameters(args.model_save_path+"/model%09d.model"%it)
 
                 with open(args.model_save_path+"/model%09d.eer"%it, 'w') as eerfile:
                     eerfile.write('{:2.4f}'.format(result[1]))
-
+                scorefile2.write('{:2.4f}'.format(result[1]))
                 scorefile.flush()
+                scorefile2.flush()
 
     if args.gpu == 0:
         scorefile.close()
+        scorefile2.close()
 
 
 ## ===== ===== ===== ===== ===== ===== ===== =====
