@@ -205,6 +205,9 @@ def main_worker(gpu, ngpus_per_node, args):
         print('Test list',args.test_list)
         
         sc, lab, _ = trainer.evaluateFromList(**vars(args))
+        sc.to("cpu")
+        lab.to("cpu")
+        print(sc)
 
         #if args.gpu == 0:
 
