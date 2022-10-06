@@ -108,7 +108,8 @@ class AugmentWAV(object):
 class train_dataset_loader(Dataset):
     def __init__(self, train_list, augment, musan_path, rir_path, max_frames, train_path, **kwargs):
 
-        self.augment_wav = AugmentWAV(musan_path=musan_path, rir_path=rir_path, max_frames = max_frames)
+        if augment:
+            self.augment_wav = AugmentWAV(musan_path=musan_path, rir_path=rir_path, max_frames = max_frames)
 
         self.train_list = train_list
         self.max_frames = max_frames;
