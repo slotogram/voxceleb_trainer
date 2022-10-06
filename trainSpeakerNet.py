@@ -260,14 +260,15 @@ def main_worker(gpu, ngpus_per_node, args):
                 eers.append(result[1])
 
                 print('\n')
-                print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, EER {:2.4f}, MinDCF {:2.5f}".format(it, result[1], mindcf))
+                print('\n Validation: ',time.strftime("%Y-%m-%d %H:%M:%S"), "Epoch {:d}, EER {:2.4f}, MinDCF {:2.5f}".format(it, result[1], mindcf))
+                print('\n')
                 #scorefile.write("Epoch {:d}, VEER {:2.4f}, MinDCF {:2.5f}\n".format(it, result[1], mindcf))
 
                 trainer.saveParameters(args.model_save_path+"/model%09d.model"%it)
 
                 with open(args.model_save_path+"/model%09d.eer"%it, 'w') as eerfile:
                     eerfile.write('{:2.4f}'.format(result[1]))
-                scorefile2.write('{:2.4f}'.format(result[1]))
+                scorefile2.write('{:2.4f}'.format(result[1])+'\n')
                 scorefile.flush()
                 scorefile2.flush()
 

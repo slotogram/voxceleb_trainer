@@ -118,7 +118,7 @@ class ModelTrainer(object):
 
             if verbose:
                 sys.stdout.write("\rProcessing {:d} of {:d}:".format(index, loader.__len__() * loader.batch_size))
-                sys.stdout.write("Loss {:f} TEER/TAcc {:2.3f}% - {:.2f} Hz ".format(loss / counter, top1 / counter, stepsize / telapsed))
+                sys.stdout.write("Loss {:f} Acc {:2.3f}% - {:.2f} Hz ".format(loss / counter, top1 / counter, stepsize / telapsed))
                 sys.stdout.flush()
 
             if self.lr_step == "iteration":
