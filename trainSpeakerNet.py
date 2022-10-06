@@ -206,12 +206,12 @@ def main_worker(gpu, ngpus_per_node, args):
         
         sc, lab, _ = trainer.evaluateFromList(**vars(args))
 
-        if args.gpu == 0:
+        #if args.gpu == 0:
 
-            result = tuneThresholdfromScore(sc, lab, [1, 0.1])
+        #    result = tuneThresholdfromScore(sc, lab, [1, 0.1])
             
         with open('test.pickle', 'wb') as handle:
-            pickle.dump([sc,lab,result], handle, protocol=pickle.HIGHEST_PROTOCOL)
+            pickle.dump([sc,lab], handle, protocol=pickle.HIGHEST_PROTOCOL)
     
 
         return
