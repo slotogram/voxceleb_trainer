@@ -9,6 +9,7 @@ import glob
 import zipfile
 import warnings
 import datetime
+import pickle
 from tuneThreshold import *
 from SpeakerNet import *
 from DatasetLoader import *
@@ -35,7 +36,7 @@ parser.add_argument('--seed',           type=int,   default=10,     help='Seed f
 
 ## Training details
 parser.add_argument('--test_interval',  type=int,   default=10,     help='Test and save every [test_interval] epochs')
-parser.add_argument('--max_epoch',      type=int,   default=500,    help='Maximum number of epochs')
+parser.add_argument('--max_epoch',      type=int,   default=100,    help='Maximum number of epochs')
 parser.add_argument('--trainfunc',      type=str,   default="",     help='Loss function')
 
 ## Optimizer
@@ -80,6 +81,7 @@ parser.add_argument('--sinc_stride',    type=int,   default=10,    help='Stride 
 
 ## For test only
 parser.add_argument('--eval',           dest='eval', action='store_true', help='Eval only')
+parser.add_argument('--eval_out',           dest='eval_out', action='store_true', help='Eval only')
 
 ## Distributed and mixed precision training
 parser.add_argument('--port',           type=str,   default="8888", help='Port for distributed training, input as text')
@@ -190,6 +192,26 @@ def main_worker(gpu, ngpus_per_node, args):
             mindcf, threshold = ComputeMinDcf(fnrs, fprs, thresholds, args.dcf_p_target, args.dcf_c_miss, args.dcf_c_fa)
 
             print('\n',time.strftime("%Y-%m-%d %H:%M:%S"), "VEER {:2.4f}".format(result[1]), "MinDCF {:2.5f}".format(mindcf))
+
+        return
+        
+    ## Evaluation code - must run on single GPU
+    if args.eval_out == True:
+
+        pytorch_total_params = sum(p.numel() for p in s.module.__S__.parameters())
+
+        print('Total parameters: ',pytorch_total_params)
+        print('Test list',args.test_list)
+        
+        sc, lab, _ = trainer.evaluateFromList(**vars(args))
+
+        if args.gpu == 0:
+
+            result = tuneThresholdfromScore(sc, lab, [1, 0.1])
+            
+        with open('test.pickle', 'wb') as handle:
+            pickle.dump([sc,lab,result], handle, protocol=pickle.HIGHEST_PROTOCOL)
+    
 
         return
 
