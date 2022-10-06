@@ -207,7 +207,8 @@ def main_worker(gpu, ngpus_per_node, args):
         sc, lab, _ = trainer.evaluateFromList(**vars(args))
         #sc.to("cpu")
         #lab.to("cpu")
-        print(sc.shape)
+        print(len(sc))
+        
 
         #if args.gpu == 0:
 
